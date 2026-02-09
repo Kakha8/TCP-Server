@@ -10,13 +10,19 @@ public class ServerActions {
     }
 
     public String messageChoices() {
-        if(message.equals("TIME")){
+        String [] parts = message.split(" ", 2);
+        if(parts[0].equals("TIME")){
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
             return LocalTime.now().format(formatter);
+        } else if (parts[0].equals("UPPER")) {
+            return parts[1].toUpperCase();
         } else
             return "";
     }
-    public String getMessage() {
+    private String upperCommand(String content) {
+        return content.toUpperCase();
+    }
+    private String getMessage() {
         return message;
     }
     public void setMessage(String message) {
