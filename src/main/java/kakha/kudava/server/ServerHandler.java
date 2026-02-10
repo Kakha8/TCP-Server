@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class ServerHandler {
 
@@ -15,40 +16,48 @@ public class ServerHandler {
         this.serverSocket = serverSocket;
     }
 
-    public void start() {
-        try(Socket clientSocket = serverSocket.accept();
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+
+    public void start() throws IOException {
+        Socket clientSocket = serverSocket.accept();
+        clientSocket.setSoTimeout(30_000);
+
+        try (clientSocket;
+             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+
             System.out.println("Client connected!");
-            while(true) {
 
-                String message = in.readLine();
-                ServerActions serverAction = new ServerActions(null);
-                if (message != null){
+            ServerActions serverAction = new ServerActions(null);
 
-                    if (message.equals("QUIT")){
-                        clientSocket.close();
-                        break;
-                    }else{
-                        serverAction.setMessage(message);
-                        System.out.println(serverAction.messageChoices());
-                        out.println(serverAction.messageChoices());
+            while (true) {
+                String message;
+                try {
+                    message = in.readLine();
+                    if (message == null) {
+                        break; // client disconnected
                     }
 
+                    if (message.equals("QUIT")) {
+                        out.println("Goodbye");
+                        break;
+                    }
+                } catch (SocketTimeoutException e) {
+                    out.println("TIMEOUT");
+                    System.out.println("Client timed out!");
+                    break;
                 }
 
 
+
+                serverAction.setMessage(message);
+                String response = serverAction.messageChoices();
+                System.out.println(response);
+                out.println(response);
             }
 
             System.out.println("Client disconnected!");
-
-            // Close the client socket
-            //clientSocket.close();
-            //Close the server socket
-            //serverSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
+}
 }

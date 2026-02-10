@@ -16,6 +16,8 @@ public class ServerActions {
             return LocalTime.now().format(formatter);
         } else if (parts[0].equals("UPPER")) {
             return parts[1].toUpperCase();
+        } else if (parts[0].equals("CUSTOM")) {
+            return "Custom Message + " + parts[1];
         } else
             return "ECHO: " + parts[0];
     }
