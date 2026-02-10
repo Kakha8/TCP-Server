@@ -16,28 +16,31 @@ public class ServerHandler {
     }
 
     public void start() {
-        try(serverSocket) {
-            System.out.println("Server is running and waiting for client connection...");
+        try(Socket clientSocket = serverSocket.accept();
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+            System.out.println("Client connected!");
             while(true) {
-
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected!");
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 
                 String message = in.readLine();
                 ServerActions serverAction = new ServerActions(null);
                 if (message != null){
-                    System.out.println("Client: " + message);
-                    serverAction.setMessage(message);
-                    System.out.println(serverAction.messageChoices());
-                    out.println(serverAction.messageChoices());
+
+                    if (message.equals("QUIT")){
+                        clientSocket.close();
+                        break;
+                    }else{
+                        serverAction.setMessage(message);
+                        System.out.println(serverAction.messageChoices());
+                        out.println(serverAction.messageChoices());
+                    }
+
                 }
 
 
-                out.println("Message received by the server.");
             }
+
+            System.out.println("Client disconnected!");
 
             // Close the client socket
             //clientSocket.close();

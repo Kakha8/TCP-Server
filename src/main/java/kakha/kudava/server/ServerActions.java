@@ -17,7 +17,7 @@ public class ServerActions {
         } else if (parts[0].equals("UPPER")) {
             return parts[1].toUpperCase();
         } else
-            return "";
+            return "ECHO: " + parts[0];
     }
     private String upperCommand(String content) {
         return content.toUpperCase();

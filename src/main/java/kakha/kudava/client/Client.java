@@ -21,6 +21,8 @@ public class Client {
             String input;
             while ((input = console.readLine()) != null) {
                 out.println(input);
+                if (input.equalsIgnoreCase("QUIT"))
+                    break;
                 System.out.println("Server: " + in.readLine());
             }
 
